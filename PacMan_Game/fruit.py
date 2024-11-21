@@ -1,7 +1,8 @@
 import pygame
-from assets.constants import *
-from entity import Entity
-from sprites import FruitSprites
+
+from PacMan_Game.assets.constants import *
+from PacMan_Game.entity import Entity
+from PacMan_Game.sprites import FruitSprites
 
 
 class Fruit(Entity):

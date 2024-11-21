@@ -1,4 +1,4 @@
-from assets.constants import *
+from PacMan_Game.assets.constants import *
 
 
 class MazeBase(object):

@@ -1,9 +1,10 @@
 import pygame
-from assets.constants import *
-from entity import Entity
 from pygame.locals import *
-from sprites import PacmanSprites
-from vector import Vector2
+
+from PacMan_Game.assets.constants import *
+from PacMan_Game.entity import Entity
+from PacMan_Game.sprites import PacmanSprites
+from PacMan_Game.vector import Vector2
 
 
 class Pacman(Entity):
@@ -15,6 +16,16 @@ class Pacman(Entity):
         self.setBetweenNodes(LEFT)
         self.alive = True
         self.sprites = PacmanSprites(self)
+
+    def change_direction(self, action):
+        if action == 0:  # Up
+            self.direction = UP
+        elif action == 1:  # Down
+            self.direction = DOWN
+        elif action == 2:  # Left
+            self.direction = LEFT
+        elif action == 3:  # Right
+            self.direction = RIGHT
 
     def reset(self):
         Entity.reset(self)
@@ -31,6 +42,7 @@ class Pacman(Entity):
     def update(self, dt):
         self.sprites.update(dt)
         self.position += self.directions[self.direction] * self.speed * dt
+
         direction = self.getValidKey()
         if self.overshotTarget():
             self.node = self.target

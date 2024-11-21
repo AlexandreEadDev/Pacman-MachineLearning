@@ -1,7 +1,8 @@
 import numpy as np
 import pygame
-from animation import Animator
-from assets.constants import *
+
+from PacMan_Game.animation import Animator
+from PacMan_Game.assets.constants import *
 
 BASETILEWIDTH = 16
 BASETILEHEIGHT = 16

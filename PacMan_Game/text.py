@@ -1,6 +1,7 @@
 import pygame
-from assets.constants import *
-from vector import Vector2
+
+from PacMan_Game.assets.constants import *
+from PacMan_Game.vector import Vector2
 
 
 class Text(object):

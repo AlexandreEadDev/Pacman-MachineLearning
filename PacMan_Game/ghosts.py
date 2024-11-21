@@ -1,10 +1,11 @@
 import pygame
-from assets.constants import *
-from entity import Entity
-from modes import ModeController
 from pygame.locals import *
-from sprites import GhostSprites
-from vector import Vector2
+
+from PacMan_Game.assets.constants import *
+from PacMan_Game.entity import Entity
+from PacMan_Game.modes import ModeController
+from PacMan_Game.sprites import GhostSprites
+from PacMan_Game.vector import Vector2
 
 
 class Ghost(Entity):

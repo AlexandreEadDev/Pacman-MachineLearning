@@ -1,9 +1,10 @@
 from random import randint
 
 import pygame
-from assets.constants import *
 from pygame.locals import *
-from vector import Vector2
+
+from PacMan_Game.assets.constants import *
+from PacMan_Game.vector import Vector2
 
 
 class Entity(object):
