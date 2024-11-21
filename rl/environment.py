@@ -26,11 +26,14 @@ class PacManEnv(gym.Env):
             dtype=np.float32,
         )
 
+        self.total_reward = 0  # Variable to accumulate the total reward during the run
+
     def reset(self):
         """
         Réinitialise l'environnement et renvoie l'état initial.
         """
         self.game.restartGame()
+        self.total_reward = 0  # Reset the total reward for the new run
         return self.get_state()
 
     def step(self, action):
@@ -54,11 +57,18 @@ class PacManEnv(gym.Env):
         # Calculate the reward
         reward = self.calculate_reward()
 
+        # Update the total reward
+        self.total_reward += reward
+
         # Check if the game is done
         done = not self.game.pacman.alive or self.game.lives == 0
 
         # Additional information
         info = {"score": self.game.score}
+
+        if done:
+            # Log the total reward at the end of the run
+            print(f"End of game. Total reward: {self.total_reward}")
 
         return observation, reward, done, info
 
