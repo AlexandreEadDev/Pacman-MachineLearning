@@ -1,8 +1,7 @@
 import pygame
-from pygame.locals import *
-
 from assets.constants import *
 from entity import Entity
+from pygame.locals import *
 from sprites import PacmanSprites
 from vector import Vector2
 

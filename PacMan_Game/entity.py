@@ -1,9 +1,8 @@
 from random import randint
 
 import pygame
-from pygame.locals import *
-
 from assets.constants import *
+from pygame.locals import *
 from vector import Vector2
 
 

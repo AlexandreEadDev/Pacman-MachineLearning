@@ -1,6 +1,5 @@
 import numpy as np
 import pygame
-
 from animation import Animator
 from assets.constants import *
 
@@ -11,7 +10,7 @@ DEATH = 5
 
 class Spritesheet(object):
     def __init__(self):
-        self.sheet = pygame.image.load("assets/spritesheet.png").convert()
+        self.sheet = pygame.image.load("PacMan_Game/assets/spritesheet.png").convert()
         transcolor = self.sheet.get_at((0, 0))
         self.sheet.set_colorkey(transcolor)
         width = int(self.sheet.get_width() / BASETILEWIDTH * TILEWIDTH)

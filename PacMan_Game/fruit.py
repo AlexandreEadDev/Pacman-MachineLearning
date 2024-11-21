@@ -1,5 +1,4 @@
 import pygame
-
 from assets.constants import *
 from entity import Entity
 from sprites import FruitSprites

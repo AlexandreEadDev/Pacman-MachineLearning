@@ -1,8 +1,6 @@
 import os
 
 import pygame
-from pygame.locals import *
-
 from assets.constants import *
 from fruit import Fruit
 from ghosts import GhostGroup
@@ -11,6 +9,7 @@ from nodes import NodeGroup
 from pacman import Pacman
 from pauser import Pause
 from pellets import PelletGroup
+from pygame.locals import *
 from sprites import LifeSprites, MazeSprites
 from text import TextGroup
 
@@ -54,8 +53,10 @@ class GameController(object):
     def startGame(self):
         self.mazedata.loadMaze(self.level)
         maze_name = self.mazedata.obj.name
-        maze_path = os.path.join("assets", f"{maze_name}.txt")
-        rotation_path = os.path.join("assets", f"{maze_name}_rotation.txt")
+        maze_path = os.path.join("PacMan_Game", "assets", f"{maze_name}.txt")
+        rotation_path = os.path.join(
+            "PacMan_Game", "assets", f"{maze_name}_rotation.txt"
+        )
 
         self.mazesprites = MazeSprites(maze_path, rotation_path)
         self.setBackground()
@@ -93,9 +94,11 @@ class GameController(object):
         self.mazedata.obj.denyGhostsAccess(self.ghosts, self.nodes)
 
     def startGame_old(self):
-        maze_path = os.path.join("assets", "maze1.txt")
+        maze_path = os.path.join("PacMan_Game", "assets", "maze1.txt")
         self.mazedata.loadMaze(self.level)
-        self.mazesprites = MazeSprites(maze_path, "assets/maze1_rotation.txt")
+        self.mazesprites = MazeSprites(
+            maze_path, "PacMan_Game/assets/maze1_rotation.txt"
+        )
         self.setBackground()
         self.nodes = NodeGroup(maze_path)
         self.nodes.setPortalPair((0, 17), (27, 17))

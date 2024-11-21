@@ -1,6 +1,5 @@
 import numpy as np
 import pygame
-
 from assets.constants import *
 from vector import Vector2
 

@@ -1,5 +1,4 @@
 import pygame
-
 from assets.constants import *
 from vector import Vector2
 
@@ -16,7 +15,7 @@ class Text(object):
         self.lifespan = time
         self.label = None
         self.destroy = False
-        self.setupFont("assets/PressStart2P-Regular.ttf")
+        self.setupFont("PacMan_Game/assets/PressStart2P-Regular.ttf")
         self.createLabel()
 
     def setupFont(self, fontpath):
