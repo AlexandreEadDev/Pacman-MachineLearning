@@ -4,7 +4,7 @@ import gym
 import numpy as np
 from gym import spaces
 
-from PacMan_Game.run import GameController
+from PacMan_Game.main import GameController
 
 
 class PacManEnv(gym.Env):
