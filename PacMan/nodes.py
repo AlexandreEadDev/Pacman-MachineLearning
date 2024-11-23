@@ -8,6 +8,7 @@ from PacMan.vector import Vector2
 class Node(object):
     def __init__(self, x, y):
         self.position = Vector2(x, y)
+        self.contains_pellet = False
         self.neighbors = {UP: None, DOWN: None, LEFT: None, RIGHT: None, PORTAL: None}
         self.access = {
             UP: [PACMAN, BLINKY, PINKY, INKY, CLYDE, FRUIT],
@@ -15,6 +16,9 @@ class Node(object):
             LEFT: [PACMAN, BLINKY, PINKY, INKY, CLYDE, FRUIT],
             RIGHT: [PACMAN, BLINKY, PINKY, INKY, CLYDE, FRUIT],
         }
+
+    def __iter__(self):
+        return iter(self.nodes)
 
     def denyAccess(self, direction, entity):
         if entity.name in self.access[direction]:
