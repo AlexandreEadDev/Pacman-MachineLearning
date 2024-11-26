@@ -33,16 +33,25 @@ class Entity(object):
         self.position = self.node.position.copy()
 
     def update(self, dt):
+        # Update the position based on the current direction
         self.position += self.directions[self.direction] * self.speed * dt
 
+        # Check if Pac-Man overshot the target node
         if self.overshotTarget():
             self.node = self.target
             directions = self.validDirections()
+
+            # Make sure to only choose valid directions
             direction = self.directionMethod(directions)
+
+            # If there is a portal, update the node
             if not self.disablePortal:
                 if self.node.neighbors[PORTAL] is not None:
                     self.node = self.node.neighbors[PORTAL]
+
             self.target = self.getNewTarget(direction)
+
+            # Ensure Pac-Man's target node is valid
             if self.target is not self.node:
                 self.direction = direction
             else:
