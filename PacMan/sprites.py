@@ -8,6 +8,9 @@ BASETILEWIDTH = 16
 BASETILEHEIGHT = 16
 DEATH = 5
 
+pygame.init()
+pygame.display.set_mode((1, 1))
+
 
 class Spritesheet(object):
     def __init__(self):

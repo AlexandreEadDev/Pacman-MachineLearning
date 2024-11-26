@@ -3,151 +3,88 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import gym
+import gymnasium as gym
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
 
 from PacMan.assets.constants import *
-from PacMan.fruit import Fruit
-from PacMan.ghosts import GhostGroup
-from PacMan.mazedata import MazeData
-from PacMan.pacman import Pacman
-from PacMan.pellets import PelletGroup
-from PacMan.vector import Vector2
+from PacMan.main import GameController
 
 
-class PacmanEnvironment(gym.Env):
+class PacManEnv(gym.Env):
+    metadata = {"render.modes": ["human"]}
+
     def __init__(self):
-        super(PacmanEnvironment, self).__init__()
+        super(PacManEnv, self).__init__()
+        self.game = GameController()
+        self.game.startGame()
 
-        # Définir l'espace d'action (haut, bas, gauche, droite)
-        self.action_space = spaces.Discrete(4)  # 4 actions : UP, DOWN, LEFT, RIGHT
+        # Define action space (UP, DOWN, LEFT, RIGHT, STOP)
+        self.action_space = spaces.Discrete(5)
 
-        # Définir l'espace d'état (composé de positions de Pac-Man, des fantômes, score)
-        # L'état contient :
-        # - Position de Pac-Man (x, y)
-        # - Positions des fantômes
-        # - Nombre de pellets mangés
-        # - Score actuel
+        # Define observation space (Pac-Man state and map state)
+        # Use a basic state representation as an example
+        obs_shape = (36, 28)  # Tile dimensions of the map
         self.observation_space = spaces.Box(
-            low=0, high=255, shape=(10,), dtype=np.float32
+            low=0, high=255, shape=obs_shape, dtype=np.uint8
         )
 
-        self.level = 0
+        # Scoring system
         self.score = 0
-        self.lives = 5
-        self.pacman = None
-        self.ghosts = None
-        self.pellets = None
-        self.fruit = None
-        self.mazedata = MazeData()
+        self.done = False
 
     def reset(self):
-        """Réinitialiser l'environnement pour commencer une nouvelle partie"""
-        self.level = 0
+        self.game.restartGame()
+        self.done = False
         self.score = 0
-        self.lives = 5
-        self.mazedata.loadMaze(self.level)
-        self.pacman = Pacman(self.mazedata.obj.pacmanStart)
-        self.ghosts = GhostGroup(self.pacman.node, self.pacman)
-        self.pellets = PelletGroup(self.mazedata.obj.name + ".txt")
-        self.fruit = None
+        return self._get_observation()
 
-        return self.get_state()
-
-    def get_state(self):
-        """Retourne l'état sous forme de tableau avec des informations utiles"""
-        pacman_position = np.array([self.pacman.position.x, self.pacman.position.y])
-        ghost_positions = np.array(
-            [ghost.position.x, ghost.position.y] for ghost in self.ghosts
-        )
-        pellet_count = len(self.pellets.pelletList)
-        score = np.array([self.score])
-
-        # Combine les informations dans un seul tableau d'état
-        state = np.concatenate(
-            [pacman_position.flatten(), ghost_positions.flatten(), score]
-        )
+    def _get_observation(self):
+        # Example of a simple state representation
+        # Could be extended for more details (e.g., ghost positions)
+        state = np.zeros((36, 28), dtype=np.uint8)
+        for pellet in self.game.pellets.pelletList:
+            x, y = pellet.position.asInt()
+            state[y // 16][x // 16] = 1  # Mark pellets on the map
+        x, y = self.game.pacman.position.asInt()
+        state[y // 16][x // 16] = 2  # Mark Pac-Man's position
         return state
 
     def step(self, action):
-        """Appliquer l'action et renvoyer l'état suivant, la récompense, et les informations"""
-        self.handle_action(action)
+        if self.done:
+            raise RuntimeError("Step called after done=True")
 
-        # Mettre à jour l'environnement
-        self.update()
+        # Map action to direction
+        directions = {0: STOP, 1: UP, 2: DOWN, 3: LEFT, 4: RIGHT}
+        self.game.pacman.direction = directions[action]
 
-        # Vérifier si Pac-Man est mort ou si le niveau est terminé
-        done = self.is_done()
+        # Update the game
+        self.game.update()
 
-        # Récompenser
-        reward = self.calculate_reward()
-
-        return self.get_state(), reward, done, {}
-
-    def handle_action(self, action):
-        """Gérer l'action (mouvement de Pac-Man)"""
-        if action == 0:  # UP
-            self.pacman.move(UP)
-        elif action == 1:  # DOWN
-            self.pacman.move(DOWN)
-        elif action == 2:  # LEFT
-            self.pacman.move(LEFT)
-        elif action == 3:  # RIGHT
-            self.pacman.move(RIGHT)
-
-    def update(self):
-        """Mettre à jour l'environnement, déplacer les fantômes, etc."""
-        self.pacman.update(1.0 / 60.0)  # Exemple avec un dt de 1/60s
-        self.ghosts.update(1.0 / 60.0)
-        if self.fruit is not None:
-            self.fruit.update(1.0 / 60.0)
-
-        # Vérifier les collisions et mettre à jour le score
-        self.check_collisions()
-
-    def check_collisions(self):
-        """Vérifier si Pac-Man mange un pellet, un fruit, ou entre en collision avec un fantôme"""
-        pellet = self.pacman.eatPellets(self.pellets.pelletList)
-        if pellet:
-            self.pellets.pelletList.remove(pellet)
-            self.score += pellet.points
-
-        if self.fruit is not None and self.pacman.collideCheck(self.fruit):
-            self.score += self.fruit.points
-            self.fruit = None
-
-        for ghost in self.ghosts:
-            if self.pacman.collideGhost(ghost):
-                if ghost.mode.current != FREIGHT:
-                    self.lives -= 1
-                    self.pacman.die()
-                    self.ghosts.reset()
-                    if self.lives <= 0:
-                        self.score -= 500  # Récompense négative pour la mort
-                        return
-
-    def is_done(self):
-        """Vérifie si l'épisode est terminé (Pac-Man mort ou niveau terminé)"""
-        if self.lives <= 0:
-            return True
-        if self.pellets.isEmpty():
-            self.level += 1
-            self.mazedata.loadMaze(self.level)
-            self.reset()
-        return False
-
-    def calculate_reward(self):
-        """Calculer la récompense pour l'agent"""
+        # Rewards
         reward = 0
-        # Ajouter la récompense pour chaque pellet ou fruit mangé
-        if self.pellets.isEmpty():
-            reward += 100  # Récompense pour avoir terminé un niveau
-        if self.pacman.alive:
-            return reward
-        else:
-            return -500  # Récompense négative si Pac-Man meurt
+        if self.game.pellets.numEaten:
+            reward += 10  # Pellet eaten
+        if len(self.game.fruitCaptured) > 0:
+            reward += 50  # Fruit eaten
+        if self.game.flashBG:  # Level completed
+            reward += 100
+        if not self.game.pacman.alive:  # Pac-Man died
+            reward -= 500
+            self.done = True
 
-    def render(self):
-        """Rendre l'état de l'environnement (peut être utilisé pour la visualisation)"""
-        pass  # Pas nécessaire si non utilisé
+        # Observation
+        obs = self._get_observation()
+
+        # Check for game-over conditions
+        if self.game.lives <= 0:
+            self.done = True
+
+        return obs, reward, self.done, {}
+
+    def render(self, mode="human"):
+        if mode == "human":
+            self.game.render()
+
+    def close(self):
+        pass
